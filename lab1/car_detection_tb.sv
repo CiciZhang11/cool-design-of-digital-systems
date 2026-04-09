@@ -19,7 +19,7 @@ module car_detection_testbench();
       outer = 1; inner = 1; repeat(3) @(posedge clk); // both blocked
       outer = 0; inner = 1; repeat(3) @(posedge clk); // inner blocked
       outer = 0; inner = 0; repeat(1) @(posedge clk); // clear (Should see 'enter' pulse)
-        
+      outer = 0; inner = 0;
         
       repeat(5) @(posedge clk);
 
@@ -28,7 +28,7 @@ module car_detection_testbench();
       outer = 1; inner = 1; repeat(3) @(posedge clk); // both blocked
       outer = 1; inner = 0; repeat(3) @(posedge clk); // outer blocked
       outer = 0; inner = 0; repeat(1) @(posedge clk); // clear (Should see 'exit' pulse)
-        
+      outer = 0; inner = 0;
     
       repeat(5) @(posedge clk);
 		//False sequence
@@ -36,7 +36,7 @@ module car_detection_testbench();
       outer = 1; inner = 1; repeat(3) @(posedge clk); // both blocked
       outer = 1; inner = 0; repeat(3) @(posedge clk); // moves backward to outer
       outer = 0; inner = 0; repeat(3) @(posedge clk); // clear
-      
+      outer = 0; inner = 0;
 
         
       $stop; // Pause simulation in ModelSim
