@@ -18,40 +18,50 @@ module car_detection(clk, reset, outer, inner, enter, exit);
             end //end IDLE case
             
             enter1: begin
-                if(outer && inner) ns = enter2;
-                else ns = enter1; 
+               if(outer && inner)   ns = enter2;
+               else if(!outer && !inner)  ns = IDLE;   // Car backed out
+               else  ns=enter1;
             end //end enter1 case
 
             enter2: begin
                 if(!outer && inner) ns = enter3;
+					 else if(outer && !inner) ns = enter1;
                 else ns = enter2;
             end //end enter2 case
             
-            enter3: begin
-                if (!outer && !inner) begin
-                    ns = IDLE;
-                    enter = 1'b1; //assign the output value enter as 1
-                end
-                else ns = enter3;
-            end //end enter3 case
+            enter3: begin // Inner blocked
+                if (!outer && !inner)    ns = E_DONE; // Sequence complete
+                else if (outer && inner) ns = enter2;
+                else                     ns = enter3;
+            end
+
+            E_DONE: begin
+                enter = 1'b1;     
+                ns = IDLE; 
+            end
             
             exit1: begin
                 if(outer && inner) ns = exit2;
+					 else if(!outer && !inner)ns = IDLE;
                 else ns = exit1;
             end //end exit1 case
 
             exit2: begin
                 if(outer && !inner) ns = exit3;
+					 else if(!outer && inner) ns = exit1;
                 else ns = exit2;
             end //end exit2 case
             
-            exit3: begin
-                if(!outer && !inner) begin
-                    ns = IDLE;
-                    exit = 1'b1; //assign the output value exit as 1
-                end
-                else ns = exit3;
-            end //end exit3 case
+            exit3: begin // Outer blocked
+                if(!outer && !inner) ns = X_DONE; // Sequence complete
+                else if(outer && inner) ns = exit2;
+					 else ns = exit3;
+            end
+
+            X_DONE: begin
+                exit = 1'b1; 
+                ns = IDLE; 
+            end
             
             default: ns = IDLE; 
             
