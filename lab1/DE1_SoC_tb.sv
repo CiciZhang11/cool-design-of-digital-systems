@@ -41,81 +41,83 @@ module DE1_SoC_tb();
 		end
 	endgenerate  
 
-	initial begin
+	initial begin 
 		V_GPIO_in  = '0;  
 		V_GPIO_dir = '0;   
+	
+		V_GPIO_dir[23] = 1'b1;   // outer input 
+		V_GPIO_dir[34] = 1'b0;   // outer LED output
 		
-		V_GPIO_dir[0] = 1'b1;   // outer input 
-		V_GPIO_dir[1] = 1'b1;   // inner input 
-		V_GPIO_dir[2] = 1'b1;   // reset input 
-		V_GPIO_dir[3] = 1'b0;   // outer LED output 
-		V_GPIO_dir[4] = 1'b0;   // inner LED output
-
+		V_GPIO_dir[24] = 1'b1;   // inner input
+		V_GPIO_dir[35] = 1'b0;   // inner LED output
+		
+		V_GPIO_dir[29] = 1'b1;   // reset input 
+		
 		// First, assert reset and verify that the system starts at 0.
 		// Test: changes in enter and exit should not affect the count
-		V_GPIO_in[2] = 1; V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50); 
-								V_GPIO_in[0] = 1; V_GPIO_in[1] = 0; @(posedge CLOCK_50);
-								V_GPIO_in[0] = 1; V_GPIO_in[1] = 1; @(posedge CLOCK_50);
-								V_GPIO_in[0] = 0; V_GPIO_in[1] = 1; @(posedge CLOCK_50);
-								V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);
-								V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50); // enter
+		V_GPIO_in[29] = 1; V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50); 
+								V_GPIO_in[23] = 1; V_GPIO_in[24] = 0; @(posedge CLOCK_50);
+								V_GPIO_in[23] = 1; V_GPIO_in[24] = 1; @(posedge CLOCK_50);
+								V_GPIO_in[23] = 0; V_GPIO_in[24] = 1; @(posedge CLOCK_50);
+								V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);
+								V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50); // enter
 								
-								V_GPIO_in[0] = 0; V_GPIO_in[1] = 1; @(posedge CLOCK_50);
-								V_GPIO_in[0] = 1; V_GPIO_in[1] = 1; @(posedge CLOCK_50); 
-								V_GPIO_in[0] = 1; V_GPIO_in[1] = 0; @(posedge CLOCK_50); 
-								V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);  
-								V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50); // exit
+								V_GPIO_in[23] = 0; V_GPIO_in[24] = 1; @(posedge CLOCK_50);
+								V_GPIO_in[23] = 1; V_GPIO_in[24] = 1; @(posedge CLOCK_50); 
+								V_GPIO_in[23] = 1; V_GPIO_in[24] = 0; @(posedge CLOCK_50); 
+								V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);  
+								V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50); // exit
 								
 								
 
 		// Then, release reset and test invalid sensor sequences do not affect the count
-		V_GPIO_in[2] = 0; V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);
+		V_GPIO_in[29] = 0; V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);
 
-								V_GPIO_in[0] = 1; V_GPIO_in[1] = 0; @(posedge CLOCK_50);    // 00 -> 10
-								V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);    // 10 -> 00
+								V_GPIO_in[23] = 1; V_GPIO_in[24] = 0; @(posedge CLOCK_50);    // 00 -> 10
+								V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);    // 10 -> 00
 
-								V_GPIO_in[0] = 0; V_GPIO_in[1] = 1; @(posedge CLOCK_50);    // 00 -> 01
-								V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);    // 01 -> 00
+								V_GPIO_in[23] = 0; V_GPIO_in[24] = 1; @(posedge CLOCK_50);    // 00 -> 01
+								V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);    // 01 -> 00
 
-								V_GPIO_in[0] = 1; V_GPIO_in[1] = 1; @(posedge CLOCK_50);    // 00 -> 11
-								V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);    // 11 -> 00
+								V_GPIO_in[23] = 1; V_GPIO_in[24] = 1; @(posedge CLOCK_50);    // 00 -> 11
+								V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);    // 11 -> 00
 
 		// Reset again
-		V_GPIO_in[2] = 1; V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50); 
-		V_GPIO_in[2] = 0; @(posedge CLOCK_50); 
+		V_GPIO_in[29] = 1; V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50); 
+		V_GPIO_in[29] = 0; @(posedge CLOCK_50); 
 
 		// Next, test valid entry sequence: 00 -> 10 -> 11 -> 01 -> 00
-                     V_GPIO_in[0] = 1; V_GPIO_in[1] = 0; @(posedge CLOCK_50);  
-                     V_GPIO_in[0] = 1; V_GPIO_in[1] = 1; @(posedge CLOCK_50);  
-                     V_GPIO_in[0] = 0; V_GPIO_in[1] = 1; @(posedge CLOCK_50);  
-                     V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);    // count +1
-							V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);
+                     V_GPIO_in[23] = 1; V_GPIO_in[24] = 0; @(posedge CLOCK_50);  
+                     V_GPIO_in[23] = 1; V_GPIO_in[24] = 1; @(posedge CLOCK_50);  
+                     V_GPIO_in[23] = 0; V_GPIO_in[24] = 1; @(posedge CLOCK_50);  
+                     V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);    // count +1
+							V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);
 
 		// Test valid exit sequence: 00 -> 01 -> 11 -> 10 -> 00
-                     V_GPIO_in[0] = 0; V_GPIO_in[1] = 1; @(posedge CLOCK_50);
-                     V_GPIO_in[0] = 1; V_GPIO_in[1] = 1; @(posedge CLOCK_50); 
-                     V_GPIO_in[0] = 1; V_GPIO_in[1] = 0; @(posedge CLOCK_50); 
-                     V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);    // count -1
-							V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);
+                     V_GPIO_in[23] = 0; V_GPIO_in[24] = 1; @(posedge CLOCK_50);
+                     V_GPIO_in[23] = 1; V_GPIO_in[24] = 1; @(posedge CLOCK_50); 
+                     V_GPIO_in[23] = 1; V_GPIO_in[24] = 0; @(posedge CLOCK_50); 
+                     V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);    // count -1
+							V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);
 
 		// Test one exit sequence to ensure that the count does not go below 0
-                     V_GPIO_in[0] = 0; V_GPIO_in[1] = 1; @(posedge CLOCK_50);  
-                     V_GPIO_in[0] = 1; V_GPIO_in[1] = 1; @(posedge CLOCK_50);   
-                     V_GPIO_in[0] = 1; V_GPIO_in[1] = 0; @(posedge CLOCK_50); 
-                     V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);    // should stay 0
-							V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);
+                     V_GPIO_in[23] = 0; V_GPIO_in[24] = 1; @(posedge CLOCK_50);  
+                     V_GPIO_in[23] = 1; V_GPIO_in[24] = 1; @(posedge CLOCK_50);   
+                     V_GPIO_in[23] = 1; V_GPIO_in[24] = 0; @(posedge CLOCK_50); 
+                     V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);    // unchange
+							V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);
 
 		// Reset again
-		V_GPIO_in[2] = 1; V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50); 
-		V_GPIO_in[2] = 0; @(posedge CLOCK_50); 
+		V_GPIO_in[29] = 1; V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50); 
+		V_GPIO_in[29] = 0; @(posedge CLOCK_50); 
 		
 		// test 20 entry sequences to ensure that the count does not exceed 18.
 		repeat (20) begin   
-                     V_GPIO_in[0] = 1; V_GPIO_in[1] = 0; @(posedge CLOCK_50);
-                     V_GPIO_in[0] = 1; V_GPIO_in[1] = 1; @(posedge CLOCK_50);
-                     V_GPIO_in[0] = 0; V_GPIO_in[1] = 1; @(posedge CLOCK_50);
-                     V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);
-							V_GPIO_in[0] = 0; V_GPIO_in[1] = 0; @(posedge CLOCK_50);
+                     V_GPIO_in[23] = 1; V_GPIO_in[24] = 0; @(posedge CLOCK_50);
+                     V_GPIO_in[23] = 1; V_GPIO_in[24] = 1; @(posedge CLOCK_50);
+                     V_GPIO_in[23] = 0; V_GPIO_in[24] = 1; @(posedge CLOCK_50);
+                     V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);
+							V_GPIO_in[23] = 0; V_GPIO_in[24] = 0; @(posedge CLOCK_50);
 		end
 
 		@(posedge CLOCK_50);

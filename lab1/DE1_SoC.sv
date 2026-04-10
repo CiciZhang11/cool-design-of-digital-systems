@@ -10,14 +10,14 @@ module DE1_SoC (CLOCK_50, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR, V_GPIO);
     logic [4:0] count;
 
     // Wiring to GPIO
-    assign outer = V_GPIO[0];
-    assign inner = V_GPIO[1];
-    assign reset = V_GPIO[2];
-
-    // Output(Logic 1 = On)
-    assign V_GPIO[3] = outer; 
-    assign V_GPIO[4] = inner;
-
+    assign outer = V_GPIO[23]; // SW1
+    assign inner = V_GPIO[24]; // SW2
+    assign reset = V_GPIO[29]; // SW3
+	 
+	 // Assign V_GPIO[34] (LED1) to V_GPIO[23] (switch1)
+	 assign V_GPIO[34] = V_GPIO[23];
+	 // Assign V_GPIO[35] (LED2) to V_GPIO[24] (switch2)
+	 assign V_GPIO[35] = V_GPIO[24];
 
 
 
@@ -45,17 +45,17 @@ module DE1_SoC (CLOCK_50, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR, V_GPIO);
         h0 = (count % 10);
         b1 = (count < 10); b0 = 0;
         b5 = 1; b4 = 1; b3 = 1; b2 = 1;
-        h5=0; h4=0; h3=0; h2=0;
+        h5=5'd0; h4=5'd0; h3=5'd0; h2=5'd0;
 
         if (count == 0) begin
             // "CLEAR" + "0"
             h5=5'd11; h4=5'd14; h3=5'd12; h2=5'd10; h1=5'd15; h0=5'd0;
-            b5=0; b4=0; b3=0; b2=0; b1=0; b0=0;
+            b5=1'd0; b4=1'd0; b3=1'd0; b2=1'd0; b1=1'd0; b0=1'd0;
         end //end if
         else if (count >= 18) begin
             // "FULL" + "18"
             h5=5'd13; h4=5'd16; h3=5'd14; h2=5'd14; h1=5'd1; h0=5'd8;
-            b5=0; b4=0; b3=0; b2=0; b1=0; b0=0;
+            b5=1'd0; b4=1'd0; b3=1'd0; b2=1'd0; b1=1'd0; b0=1'd0;
         end//end else if
     end// end combinational logic
 
