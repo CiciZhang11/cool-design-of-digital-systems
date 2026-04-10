@@ -1,9 +1,10 @@
+/* testbench for the car_counter */
+
 // module car_counter Testbench
 // First, test incr and decr while reset is asserted
 // Then release reset and test decr when counter = 0
 // Test different combinations of incr and decr
 // Reset and test incr more than 18 times to ensure the counter does not exceed 18
-
 
 module car_counter_tb();
 	logic incr, decr, clk, reset;

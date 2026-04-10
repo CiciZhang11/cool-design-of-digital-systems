@@ -1,4 +1,6 @@
-module car_detection_testbench();
+/* testbench for the car_detection */
+
+module car_detection_tb();
 
 	logic clk, reset, outer, inner, enter, exit;
 	
