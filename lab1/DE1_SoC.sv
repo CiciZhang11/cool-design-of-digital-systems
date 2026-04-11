@@ -1,3 +1,5 @@
+// Top-level moduel for the DE1_SoC board implementation
+//This module connects the car detection FSM and car counter to the physical hardware.
 module DE1_SoC (CLOCK_50, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR, V_GPIO);
 	input  logic       CLOCK_50;  // 50MHz clock
 	output logic [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;  // active low
@@ -21,14 +23,14 @@ module DE1_SoC (CLOCK_50, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR, V_GPIO);
 
 
 
-    // FSM: Detects car direction
+    // car detection FSM to determine if a car enterd or exited
     car_detection fsm (
         .clk(CLOCK_50), .reset(reset),
         .outer(outer), .inner(inner),
         .enter(enter_pulse), .exit(exit_pulse)
     );
 
-    // Counter: Stores 0-18
+    // car counter FSM to counter the occupancy of the parking lot
     car_counter counter_unit (
         .clk(CLOCK_50), .reset(reset),
         .incr(enter_pulse), .decr(exit_pulse),
@@ -39,6 +41,7 @@ module DE1_SoC (CLOCK_50, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR, V_GPIO);
      logic [4:0] h5, h4, h3, h2, h1, h0; 
     logic b5, b4, b3, b2, b1, b0;
 
+	// Determines what text or numbers to show on the HEX displays
     always_comb begin
         // Default: Show numeric count
         h1 = (count >= 10) ? 5'd1 : 5'd0;
@@ -57,9 +60,9 @@ module DE1_SoC (CLOCK_50, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, LEDR, V_GPIO);
             h5=5'd13; h4=5'd16; h3=5'd14; h2=5'd14; h1=5'd1; h0=5'd8;
             b5=1'd0; b4=1'd0; b3=1'd0; b2=1'd0; b1=1'd0; b0=1'd0;
         end//end else if
-    end// end combinational logic
+    end// end always_comb
 
-    // decoders
+    // decoders, convert 5-bits values into 7 segment patterns.
     hex_decoder d5 (h5, b5, HEX5);
     hex_decoder d4 (h4, b4, HEX4);
     hex_decoder d3 (h3, b3, HEX3);
