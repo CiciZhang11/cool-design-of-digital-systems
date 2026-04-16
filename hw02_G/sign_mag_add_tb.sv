@@ -40,6 +40,7 @@ module sign_mag_add_tb ();
 	 a = 4'b1001; b = 4'b1010; @(posedge clk); // -1 + (-2) = -3
 	 //neg + neg (overflow)
 	 a = 4'b1101; b = 4'b1100; @(posedge clk); // -5 + (-4) = -9
+	 @(posedge clk) // wait one clock
 	 
 	 $stop;
   end  // initial
