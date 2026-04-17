@@ -12,10 +12,10 @@ module task3 (
 
     ram32x3port2 r3 (
         .clock(clk),
-		  .wren(wren_t3),
+		  .wren(wren),
         .wraddress(addr_w),
         .rdaddress(addr_r),
-        .data(din_t3),
+        .data(data),
         .q(dout_r)
     );
 
