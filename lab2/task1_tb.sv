@@ -25,8 +25,8 @@ module task1_tb();
 	initial begin
 		clk <= 0;
 		forever #(period/2) clk <= ~clk;
-	end  // initial clk
-
+	end  
+	// initial clk
 	initial begin
 		wren = 0; address = 5'd0; data = 3'd0; @(posedge clk); 
 		wren = 1; address = 5'd5; data = 3'd5; @(posedge clk); // test writing 5 to address 5
@@ -40,4 +40,4 @@ module task1_tb();
 		$stop; // end simulation
 	
 end // end task1_tb module
-endmodule
+endmodule // end module
