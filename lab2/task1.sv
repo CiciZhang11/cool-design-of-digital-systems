@@ -19,4 +19,4 @@ module task1 (
         .q(dout)
     );
 
-endmodule
+endmodule // end module task1
