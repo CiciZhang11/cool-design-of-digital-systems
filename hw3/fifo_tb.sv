@@ -48,8 +48,8 @@ module fifo_tb ();
     $display("Read lower half: r_data=%h, expected CD", r_data);
 	 
 	 // 6. write ABCD again, and read
-    wr = 1; w_data = 16'hABCD; @(posedge clk);
-    wr = 0; @(posedge clk);
+    wr = 1; w_data = 16'hABCD; rd = 1; @(posedge clk);
+	 wr = 0; rd = 0; @(posedge clk);
     @(posedge clk);
 
     rd = 1; @(posedge clk);
