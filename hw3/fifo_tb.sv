@@ -39,13 +39,13 @@ module fifo_tb ();
 
     // 4. read upper half 
     rd = 1; @(posedge clk);
+    $display("Read upper half: r_data=%h, expected AB", r_data);	 
     rd = 0; @(posedge clk);
-    $display("Read upper half: r_data=%h, expected AB", r_data);
 
     // 5. read lower half 
     rd = 1; @(posedge clk);
+    $display("Read lower half: r_data=%h, expected CD", r_data);	 
     rd = 0; @(posedge clk);
-    $display("Read lower half: r_data=%h, expected CD", r_data);
 	 
 	 // 6. write ABCD again, and read
     wr = 1; w_data = 16'hABCD; rd = 1; @(posedge clk);
@@ -53,8 +53,9 @@ module fifo_tb ();
     @(posedge clk);
 
     rd = 1; @(posedge clk);
+    $display("Write again then read: r_data=%h, expected AB", r_data); 
     rd = 0; @(posedge clk);
-    $display("Write again then read: r_data=%h, expected AB", r_data);
+
 	 
 	 // 7. Reset and Write ABCD 16 times, more than FIFO depth
     reset = 1; @(posedge clk);
