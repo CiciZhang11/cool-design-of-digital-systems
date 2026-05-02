@@ -1,4 +1,9 @@
-// This is a filter. 
+// This is a filter to remove noises. The general method we use here is
+// averaging finite impulse response filter. We first divide sample in
+// by N, and put it into fifo as the new tail entry and at the same time
+// expose the oldest entry. These will be send to an accumulator whose input
+// is the sum of the next incoming data value and its current stored value.
+// so we get the average of the last N samples.
 module fir_filter #(
     parameter DATA_WIDTH = 24, // audio sample width
     parameter N = 8,    // number of samples to average
