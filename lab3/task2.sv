@@ -11,7 +11,7 @@ module task2 #(
 
     logic [15:0] rom_addr;
 
-    rom48kx24 audio_memory(
+    rom48kx24 rom(
         .address(rom_addr),
         .clock(clk),
         .q(rom_data)
