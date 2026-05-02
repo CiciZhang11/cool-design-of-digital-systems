@@ -25,6 +25,39 @@ module DE1_SoC (
     logic [23:0] final_output;
     logic read_ready, write_ready;
 
+
+    logic [23:0] audio_t1;
+    logic [23:0] audio_t2;
+    logic [23:0] mux9_out;
+    logic [23:0] audio_filtered;
+    logic [23:0] final_audio;
+
+    // Audio CODEC (MISSING in original - REQUIRED)
+    audio_codec codec (
+        .clk(CLOCK_50),
+        .reset(reset),
+
+        .read(read_ready & write_ready),
+        .write(read_ready & write_ready),
+
+        .writedata_left(final_audio),
+        .writedata_right(final_audio),
+
+        .AUD_ADCDAT(AUD_ADCDAT),
+
+        .AUD_BCLK(AUD_BCLK),
+        .AUD_ADCLRCK(AUD_ADCLRCK),
+        .AUD_DACLRCK(AUD_DACLRCK),
+
+        .read_ready(read_ready),
+        .write_ready(write_ready),
+
+        .readdata_left(readdata_left),
+        .readdata_right(readdata_right),
+
+        .AUD_DACDAT(AUD_DACDAT)
+    );
+
      
     // Instantiate Task 1
     task1 t1 (
@@ -34,7 +67,7 @@ module DE1_SoC (
     );
 
     // Instantiate Task 2
-    task2 #(.ROM_SIZE(48000)) t2 (
+    task2 t2 (
         .clk(CLOCK_50),
         .reset(reset),
         .write_ready(write_ready),
@@ -60,6 +93,5 @@ module DE1_SoC (
 
     // SW8 MUX
 	assign final_audio = (SW[8] == 1'b1) ? audio_filtered : mux9_out;
-
 
 endmodule // end module DE1_SoC
