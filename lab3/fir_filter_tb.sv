@@ -109,7 +109,7 @@ module fir_filter_tb();
                               sample_in <= 24'sd99999; @(posedge clk); 
                               sample_in <= 24'sd99999; @(posedge clk); 
                               sample_in <= 24'sd99999; @(posedge clk); 
-                    en <= 1; sample_in <= 24'sd800;   @(posedge clk);  // acc = 200
+                    en <= 1; sample_in <= 24'sd800;   @(posedge clk); 
 
         $stop;  // end simulation
     end  // initial
