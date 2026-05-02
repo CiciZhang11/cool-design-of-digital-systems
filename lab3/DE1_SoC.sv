@@ -25,20 +25,26 @@ module DE1_SoC (
     logic [23:0] final_output;
     logic read_ready, write_ready;
 
-
     logic [23:0] audio_t1;
     logic [23:0] audio_t2;
     logic [23:0] mux9_out;
     logic [23:0] audio_filtered;
     logic [23:0] final_audio;
 
-    // Audio CODEC (MISSING in original - REQUIRED)
+    //  clock generator (REQUIRED for AUDIO CLOCK)
+    clock_generator clk_gen (   
+        .CLOCK2_50(CLOCK2_50),       
+        .reset(reset),         
+        .AUD_XCK(AUD_XCK)   
+    ); 
+
+    // CODEC
     audio_codec codec (
         .clk(CLOCK_50),
         .reset(reset),
 
-        .read(read_ready & write_ready),
-        .write(read_ready & write_ready),
+        .read(read_ready),  
+        .write(write_ready),  
 
         .writedata_left(final_audio),
         .writedata_right(final_audio),
@@ -84,11 +90,11 @@ module DE1_SoC (
         .ADDR_WIDTH(3),
         .LOG2_N(3)      
     ) t3 (
-        .clk        (clk),
-        .reset      (reset),
-        .en         (read_ready & write_ready),
-        .sample_in  (mux9_out),
-        .sample_out (audio_filtered)
+        .clk(clk),
+        .reset(reset),
+        .en(write_ready),
+        .sample_in(mux9_out),
+        .sample_out(audio_filtered)
     );
 
     // SW8 MUX
