@@ -20,6 +20,9 @@ module fifo #(parameter DATA_WIDTH=8, ADDR_WIDTH=4)
   // enable write only when FIFO is not full
   // or if reading and writing simultaneously
   assign w_en = wr & (~full | rd);
- 
+  
+  // instantiate FIFO controller and register file
+  fifo_ctrl #(ADDR_WIDTH) c_unit (.*);
+  reg_file #(DATA_WIDTH, ADDR_WIDTH) r_unit (.*);
   
 endmodule  // fifo
