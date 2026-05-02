@@ -7,7 +7,7 @@
 module fir_filter #(
     parameter DATA_WIDTH = 24, // audio sample width
     parameter N = 8,    // number of samples to average
-    parameter ADDR_WIDTH = 3,
+    parameter ADDR_WIDTH = 4,
     parameter LOG2_N = 3  // for arithmetic right-shift
 )(
     input  logic clk,
@@ -26,14 +26,27 @@ module fir_filter #(
 	 // update both
     logic fifo_empty, fifo_full;
     logic [DATA_WIDTH-1:0] divided_out;
+		
+	 //Counter to track when the FIFO has N elements
+    logic [$clog2(N):0] count;
+    logic fill_done;
 
+    always_ff @(posedge clk) begin
+        if (reset)
+            count <= '0;
+        else if (en && !fill_done)
+            count <= count + 1'b1;
+    end
+
+    assign fill_done = (count == N);
+	 
     fifo #(
         .DATA_WIDTH (DATA_WIDTH),
         .ADDR_WIDTH (ADDR_WIDTH)
     ) sample_fifo (
         .clk    (clk),
         .reset  (reset),
-        .rd     (en), 
+        .rd     (en&fill_done), 
         .wr     (en),  // use the same enable signal for both read and write
         .empty  (fifo_empty),
         .full   (fifo_full),
@@ -43,7 +56,9 @@ module fir_filter #(
 	 // 3. Applying accumulator.
 	 // update the same of the last N divided samples using 
     // acc <= acc + divided_in + (~divided_out + 1)
-    logic signed [DATA_WIDTH-1:0] acc;
+    logic [DATA_WIDTH-1:0] valid_divided_out;
+    assign valid_divided_out = fill_done ? divided_out : '0;
+	 logic signed [DATA_WIDTH-1:0] acc;
 
     always_ff @(posedge clk) begin
         if (reset) begin
@@ -51,7 +66,7 @@ module fir_filter #(
         end // end if
 		  else if (en) begin
             // Add new divided sample; subtract oldest via two's complement
-            acc <= acc + $signed(divided_in) + ($signed(~divided_out) + 1'b1);
+            acc <= acc + $signed(divided_in) + ($signed(~valid_divided_out) + 1'b1);
         end // end else if
     end // end always_ff
 
