@@ -23,7 +23,8 @@ module fir_filter #(
                           sample_in[DATA_WIDTH-1 : LOG2_N]};
 	 // 2. FIFO
 	 // Use en for both read enable and write enable because we need to simultaously
-	 // update both
+	 // update both. to handle the startup phase, we need to use a counter to see if 
+	 // the buffer has been filled. if not, we should not read.
     logic fifo_empty, fifo_full;
     logic [DATA_WIDTH-1:0] divided_out;
 		
@@ -47,7 +48,7 @@ module fir_filter #(
         .clk    (clk),
         .reset  (reset),
         .rd     (en&fill_done), 
-        .wr     (en),  // use the same enable signal for both read and write
+        .wr     (en),  
         .empty  (fifo_empty),
         .full   (fifo_full),
         .w_data (divided_in), // push the newest
@@ -55,7 +56,7 @@ module fir_filter #(
     );
 	 // 3. Applying accumulator.
 	 // update the same of the last N divided samples using 
-    // acc <= acc + divided_in + (~divided_out + 1)
+     // acc <= acc + divided_in + (~divided_out + 1)
     logic [DATA_WIDTH-1:0] valid_divided_out;
     assign valid_divided_out = fill_done ? divided_out : '0;
 	 logic signed [DATA_WIDTH-1:0] acc;
