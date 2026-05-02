@@ -42,27 +42,30 @@ module fifo_ctrl #(parameter ADDR_WIDTH=4)
     // default to keeping the current values
     rd_ptr_next = rd_ptr;
     wr_ptr_next = wr_ptr;
-    empty_next = empty;
-    full_next = full;
+    empty_next  = empty;
+    full_next   = full;
     case ({rd, wr})
-      2'b11:  // read and write
+      2'b11:  // simultaneous read and write
         begin
           rd_ptr_next = rd_ptr + 1'b1;
           wr_ptr_next = wr_ptr + 1'b1;
+          // empty and full status do not change: we removed one entry
+          // and added one entry so the count stays the same.
+          // no update needed for empty_next or full_next.
         end
-      2'b10:  // read
+      2'b10:  // read only
         if (~empty)
           begin
             rd_ptr_next = rd_ptr + 1'b1;
+            full_next   = 0;
             if (rd_ptr_next == wr_ptr)
               empty_next = 1;
-            full_next = 0;
           end
-      2'b01:  // write
+      2'b01:  // write only
         if (~full)
           begin
             wr_ptr_next = wr_ptr + 1'b1;
-            empty_next = 0;
+            empty_next  = 0;
             if (wr_ptr_next == rd_ptr)
               full_next = 1;
           end
