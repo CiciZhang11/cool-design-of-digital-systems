@@ -1,17 +1,32 @@
 // DATAPATH CODE of Task 1
 module datapath(
 	input logic clk, reset,
+	output logic R_eq_A, R_gt_A, mid_eq_0,
 	input logic init, set_max, set_min, // control signals
-	input  logic [7:0] R,
+	input logic [7:0] R,
+	input logic [7:0] A,
+
 	output logic [4:0] loc,
 	output logic done, found
 );
+
 	logic [4:0] min, max, mid;
-	logic R_eq_A;
-	logic mid_eq_0;
-	
-	// Datapath logic (RTL operations)
+	logic [7:0] R_reg;
+
+	// combinational midpoint
 	assign mid = (min + max) >> 1;
+
+	// comparison signals
+	always_ff @(posedge clk) begin
+		R_reg <= R;
+	end
+
+	assign R_eq_A = (R_reg == A);
+	assign R_gt_A = (R_reg > A);
+
+	assign mid_eq_0 = (min > max);
+
+	// Datapath logic (RTL operations)
 	always_ff @(posedge clk) begin
 		if (reset) begin 
 			min   <= 0;
@@ -37,14 +52,15 @@ module datapath(
 
 			loc <= mid;
 
-			if (R_eq_A)
+			if (R_eq_A) begin 
 				found <= 1;
-				done <= 1;
+				done  <= 1;
+			end
 
 			if (mid_eq_0)
 				done <= 1;
 
 		end
-	end // end ff
+	end
 
 endmodule // end datapath module
