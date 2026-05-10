@@ -29,45 +29,33 @@ module controller_tb();
         .load_R  (load_R),
         .set_max  (set_max),
         .set_min  (set_min),
-        .done       (done),
-        .found      (found)
+        .done  (done),
+        .found  (found)
     );
     parameter period = 10;
     initial begin
         clk = 0;
         forever #(period/2) clk = ~clk;
-    end
+    end // end initial
 
     initial begin
-        // Initialise all inputs
         reset = 1; start = 0;
         R_eq_A = 0; R_gt_A = 0; min_gt_max = 0;
         @(posedge clk);
-        @(posedge clk); // let reset settle in S_IDLE
+        @(posedge clk); 
 
-        // CASE 1 – min_gt_max=1 on first S_UPDATE -> straight to S_DONE
-        
-        // Expected state walk:
-        //   S_IDLE--(start=1)--> S_UPDATE --(min_gt_max=1)--> S_DONE
-        //
-        // Expected outputs each state:
-        //   S_IDLE   : init=1 (because start=1)
-        //   S_UPDATE : update_mid=0 (min_gt_max=1 suppresses it)
-        //   S_DONE   : done=1, found=0 (R_eq_A=0)
+       // 1. min_gt_max=1, immediately exit to S_DONE
+       // init = 1, update_mid=0 (min_gt_max=1 suppresses it), done=1, found=0 (R_eq_A=0)
         #1; min_gt_max = 1;   // empty range
         #1; start = 1; @(posedge clk); // S_IDLE: init=1, -> S_UPDATE
         #1; start = 0; @(posedge clk); // S_UPDATE: min_gt_max=1 -> S_DONE
-        @(posedge clk);                 // S_DONE: done=1, found=0
+        @(posedge clk);  // S_DONE: done=1, found=0
         // return to S_IDLE
         @(posedge clk);
         @(posedge clk);
-
-        // ═══════════════════════════════════════════════════════════════
-        // CASE 2 – Reset during S_WAIT
-        //
-        // Expected state walk:
+        // 2. reset during S_WAIT
         //   S_IDLE -> S_UPDATE -> S_WAIT  [reset fires]  -> S_IDLE
-        // ═══════════════════════════════════════════════════════════════
+  
         #1; min_gt_max = 0; R_eq_A = 0; R_gt_A = 0;
         #1; start = 1; @(posedge clk); // S_IDLE -> S_UPDATE
         #1; start = 0; @(posedge clk); // S_UPDATE -> S_WAIT (load_R=1)
@@ -75,8 +63,7 @@ module controller_tb();
         #1; reset = 0; @(posedge clk); // reset asserted -> S_IDLE
         #1; reset = 1; @(posedge clk); // back to normal
         @(posedge clk);                 // confirm idle outputs
-
-        // ═══════════════════════════════════════════════════════════════
+        // 3. 
         // CASE 3 – Reset during S_DONE
         //
         // Expected state walk:
