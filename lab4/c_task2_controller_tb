@@ -1,52 +1,43 @@
-// =============================================================================
-// task2_controller_tb.sv
+// this is the testbench for controller_tb.sv(task2)
 //
 // Testbench for the binary-search controller.
-// We drive the status signals (R_eq_A, R_gt_A, min_gt_max) manually to
+// We drive the status signals R_eq_A, R_gt_A, min_gt_max manually to
 // pretend the datapath is running, and watch how the controller reacts.
 //
-// Cases tested:
-//  1. min_gt_max=1 on first UPDATE -> immediately exits to S_DONE (not found)
+//  1. first update to immediately exit to S_DONE, min_gt_max=1
 //  2. Reset during S_WAIT
 //  3. Reset during S_DONE
 //  4. Normal binary search: found on first probe (R_eq_A=1 in S_SEARCH)
 //  5. Normal binary search: R_gt_A path (set_max) then found
 //  6. Normal binary search: R_lt_A path (set_min) then found
-//  7. Stuck start button: holding start in S_DONE keeps FSM there,
-//     releasing returns to S_IDLE (check init fires again if start stays low)
-// =============================================================================
+//  7. hold start
 
-module task2_controller_tb();
-
-    // ── DUT ports ─────────────────────────────────────────────────────
+module controller_tb();
     logic clk, reset, start;
     logic R_eq_A, R_gt_A, min_gt_max;
     logic init, update_mid, load_R, set_max, set_min, done, found;
 
     controller dut (
-        .clk        (clk),
-        .reset      (reset),
-        .start      (start),
-        .R_eq_A     (R_eq_A),
-        .R_gt_A     (R_gt_A),
+        .clk  (clk),
+        .reset (reset),
+        .start  (start),
+        .R_eq_A (R_eq_A),
+        .R_gt_A(R_gt_A),
         .min_gt_max (min_gt_max),
-        .init       (init),
+        .init (init),
         .update_mid (update_mid),
-        .load_R     (load_R),
-        .set_max    (set_max),
-        .set_min    (set_min),
+        .load_R  (load_R),
+        .set_max  (set_max),
+        .set_min  (set_min),
         .done       (done),
         .found      (found)
     );
-
-    // ── Clock ─────────────────────────────────────────────────────────
     parameter period = 10;
     initial begin
         clk = 0;
         forever #(period/2) clk = ~clk;
     end
 
-    // ── Stimulus ──────────────────────────────────────────────────────
     initial begin
         // Initialise all inputs
         reset = 1; start = 0;
@@ -54,18 +45,15 @@ module task2_controller_tb();
         @(posedge clk);
         @(posedge clk); // let reset settle in S_IDLE
 
-        // ═══════════════════════════════════════════════════════════════
         // CASE 1 – min_gt_max=1 on first S_UPDATE -> straight to S_DONE
-        //          (search range already empty; value cannot be found)
-        //
+        
         // Expected state walk:
-        //   S_IDLE --(start=1)--> S_UPDATE --(min_gt_max=1)--> S_DONE
+        //   S_IDLE--(start=1)--> S_UPDATE --(min_gt_max=1)--> S_DONE
         //
         // Expected outputs each state:
         //   S_IDLE   : init=1 (because start=1)
         //   S_UPDATE : update_mid=0 (min_gt_max=1 suppresses it)
         //   S_DONE   : done=1, found=0 (R_eq_A=0)
-        // ═══════════════════════════════════════════════════════════════
         #1; min_gt_max = 1;   // empty range
         #1; start = 1; @(posedge clk); // S_IDLE: init=1, -> S_UPDATE
         #1; start = 0; @(posedge clk); // S_UPDATE: min_gt_max=1 -> S_DONE
