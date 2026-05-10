@@ -2,8 +2,8 @@
 
 module controller(
 	input logic clk, reset, start,
-	input logic R_eq_A, R_gt_A, min_gt_max,
-	output logic init, update_mid, load_R, set_max, set_min, done, found
+	input logic R_eq_A, R_gt_A, min_gt_max, // status signals
+	output logic init, update_mid, load_R, set_max, set_min, done, found // controller signals
 );
 	typedef enum logic [2:0] {S_IDLE, S_UPDATE, S_WAIT, S_SEARCH, S_DONE} state_t;
 	state_t ps, ns;
@@ -14,7 +14,7 @@ module controller(
 			ps <= S_IDLE;
 		else
 			ps <= ns;
-	end
+	end // end always_ff
 
 	// next state
 	always_comb begin
@@ -47,7 +47,7 @@ module controller(
 
 			default: ns = S_IDLE;
 		endcase
-	end
+	end // end always_comb
 
 	// outputs
 	always_comb begin
@@ -88,5 +88,6 @@ module controller(
 				found = R_eq_A;
 			end
 		endcase
-	end
+	end // end always_comb
+	
 endmodule // end module task 2 controller
