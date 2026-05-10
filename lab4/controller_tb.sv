@@ -1,15 +1,25 @@
-// This is the testbench for task2 controller
+// this is the testbench for controller_tb.sv(task2)
+//
+// Testbench for the binary-search controller.
+// We drive the status signals R_eq_A, R_gt_A, min_gt_max manually to
+// pretend the datapath is running, and watch how the controller reacts.
+//
+//  1. first update to immediately exit to S_DONE, min_gt_max=1
+//  2. Reset during S_WAIT
+//  3. Reset during S_DONE
+//  4. Normal binary search: found on first probe (R_eq_A=1 in S_SEARCH)
+//  5. Normal binary search: R_gt_A path (set_max) then found
+//  6. Normal binary search: R_lt_A path (set_min) then found
+//  7. hold start
 
-`timescale 1 ps / 1 ps
+// TESTBENCH for controller_tb.sv
 
 module controller_tb();
 
 	logic clk, reset, start;
 	logic R_eq_A, R_gt_A, min_gt_max;
-
 	logic init, update_mid, load_R, set_max, set_min, done, found;
 
-	// Instantiate DUT
 	controller dut (
 		.clk(clk),
 		.reset(reset),
@@ -26,146 +36,90 @@ module controller_tb();
 		.found(found)
 	);
 
-	// Clock
-	always begin
-		clk = 0; #5;
-		clk = 1; #5;
-	end
-
-	task print_outputs(input string label);
-		begin
-			$display("%s | init=%0b update_mid=%0b load_R=%0b set_max=%0b set_min=%0b done=%0b found=%0b",
-					 label, init, update_mid, load_R, set_max, set_min, done, found);
-		end
-	endtask
-
-	task reset_dut();
-		begin
-			reset = 1;
-			start = 0;
-			R_eq_A = 0;
-			R_gt_A = 0;
-			min_gt_max = 0;
-
-			repeat(2) @(posedge clk); #1;
-			reset = 0;
-			@(posedge clk); #1;
-		end
-	endtask
+	parameter period = 10;
 
 	initial begin
-
-		// Test 1: found case
-		$display("\nTest 1: found case");
-
-		reset_dut();
-
-		start = 1;
-		#1;
-		print_outputs("S_IDLE with start=1, expect init=1");
-
-		@(posedge clk); #1;
-		start = 0;
-		print_outputs("S_UPDATE, expect update_mid=1");
-
-		@(posedge clk); #1;
-		print_outputs("S_WAIT, expect load_R=1");
-
-		R_eq_A = 1;
-		R_gt_A = 0;
-		min_gt_max = 0;
-
-		@(posedge clk); #1;
-		print_outputs("S_SEARCH, expect no set_min/set_max");
-
-		@(posedge clk); #1;
-		print_outputs("S_DONE, expect done=1 found=1");
-
-
-		// Test 2: R > A, should set_max
-		$display("\nTest 2: R > A, should set_max");
-
-		reset_dut();
-
-		start = 1;
-		#1;
-		print_outputs("S_IDLE with start=1, expect init=1");
-
-		@(posedge clk); #1;
-		start = 0;
-		print_outputs("S_UPDATE, expect update_mid=1");
-
-		@(posedge clk); #1;
-		print_outputs("S_WAIT, expect load_R=1");
-
-		R_eq_A = 0;
-		R_gt_A = 1;
-		min_gt_max = 0;
-
-		@(posedge clk); #1;
-		print_outputs("S_SEARCH, expect set_max=1 set_min=0");
-
-
-		// Test 3: R < A, should set_min
-		$display("\nTest 3: R < A, should set_min");
-
-		reset_dut();
-
-		start = 1;
-		#1;
-		print_outputs("S_IDLE with start=1, expect init=1");
-
-		@(posedge clk); #1;
-		start = 0;
-		print_outputs("S_UPDATE, expect update_mid=1");
-
-		@(posedge clk); #1;
-		print_outputs("S_WAIT, expect load_R=1");
-
-		R_eq_A = 0;
-		R_gt_A = 0;
-		min_gt_max = 0;
-
-		@(posedge clk); #1;
-		print_outputs("S_SEARCH, expect set_max=0 set_min=1");
-
-
-		// Test 4: not found case, min_gt_max
-		$display("\nTest 4: not found case, min_gt_max");
-
-		reset_dut();
-
-		start = 1;
-		#1;
-		print_outputs("S_IDLE with start=1, expect init=1");
-
-		min_gt_max = 1;
-
-		@(posedge clk); #1;
-		start = 0;
-		print_outputs("S_UPDATE with min_gt_max=1, expect update_mid=0");
-
-		@(posedge clk); #1;
-		print_outputs("S_DONE, expect done=1 found=0");
-
-
-		// Test 5: no start, stay idle
-		$display("\nTest 5: no start, stay idle");
-
-		reset_dut();
-
-		start = 0;
-		R_eq_A = 0;
-		R_gt_A = 0;
-		min_gt_max = 0;
-
-		#1;
-		print_outputs("S_IDLE no start, expect all outputs 0");
-
-		@(posedge clk); #1;
-		print_outputs("Still S_IDLE, expect all outputs 0");
-
-		$stop;
+		clk = 0;
+		forever #(period/2) clk = ~clk;
 	end
 
-endmodule
+	initial begin
+		reset = 1; start = 0;
+		R_eq_A = 0; R_gt_A = 0; min_gt_max = 0;
+		@(posedge clk); @(posedge clk);
+		reset = 0; @(posedge clk); #1;
+
+		// 1. Test min_gt_max, expected done = 1 and found = 0.
+		min_gt_max = 1;
+		start = 1; @(posedge clk); #1;
+		start = 0; @(posedge clk); #1;
+		@(posedge clk); #1;
+		@(posedge clk); #1;
+
+		// 2. Test reset during S_WAIT, expected FSM returns to S_IDLE.
+		min_gt_max = 0; R_eq_A = 0; R_gt_A = 0;
+		start = 1; @(posedge clk); #1;
+		start = 0; @(posedge clk); #1;
+		reset = 1; @(posedge clk); #1;
+		reset = 0; @(posedge clk); #1;
+		@(posedge clk); #1;
+
+		// 3. Test reset during S_DONE, expected FSM returns to S_IDLE.
+		min_gt_max = 0; R_eq_A = 0; R_gt_A = 0;
+		start = 1; @(posedge clk); #1;
+		start = 0; @(posedge clk); #1;
+		@(posedge clk); #1;
+		R_eq_A = 1; @(posedge clk); #1;
+		reset = 1; @(posedge clk); #1;
+		reset = 0; R_eq_A = 0; @(posedge clk); #1;
+		@(posedge clk); #1;
+
+		// 4. Test found on first probe, expected done = 1 and found = 1.
+		min_gt_max = 0; R_eq_A = 0; R_gt_A = 0;
+		start = 1; @(posedge clk); #1;
+		start = 0; @(posedge clk); #1;
+		@(posedge clk); #1;
+		R_eq_A = 1; @(posedge clk); #1;
+		@(posedge clk); #1;
+		R_eq_A = 0; @(posedge clk); #1;
+
+		// 5. Test R_gt_A path, expected set_max = 1, then found.
+		min_gt_max = 0; R_eq_A = 0; R_gt_A = 0;
+		start = 1; @(posedge clk); #1;
+		start = 0; @(posedge clk); #1;
+		@(posedge clk); #1;
+		R_gt_A = 1; R_eq_A = 0; @(posedge clk); #1;
+		R_gt_A = 0; @(posedge clk); #1;
+		@(posedge clk); #1;
+		R_eq_A = 1; @(posedge clk); #1;
+		@(posedge clk); #1;
+		R_eq_A = 0; @(posedge clk); #1;
+
+		// 6. Test R_lt_A path, expected set_min = 1, then found.
+		min_gt_max = 0; R_eq_A = 0; R_gt_A = 0;
+		start = 1; @(posedge clk); #1;
+		start = 0; @(posedge clk); #1;
+		@(posedge clk); #1;
+		R_gt_A = 0; R_eq_A = 0; @(posedge clk); #1;
+		@(posedge clk); #1;
+		@(posedge clk); #1;
+		R_eq_A = 1; @(posedge clk); #1;
+		@(posedge clk); #1;
+		R_eq_A = 0; @(posedge clk); #1;
+
+		// 7. Test hold start, expected FSM stays in S_DONE until start is released.
+		min_gt_max = 0; R_eq_A = 0; R_gt_A = 0;
+		start = 1; @(posedge clk); #1;
+		@(posedge clk); #1;
+		@(posedge clk); #1;
+		R_eq_A = 1; @(posedge clk); #1;
+
+		repeat(3) @(posedge clk);
+
+		start = 0; R_eq_A = 0; @(posedge clk); #1;
+		@(posedge clk); #1;
+
+		$stop();
+	end
+
+endmodule // end controller_tb
