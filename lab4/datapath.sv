@@ -1,66 +1,54 @@
-// DATAPATH CODE of Task 1
+// DATAPATH CODE of Task 2
+
 module datapath(
 	input logic clk, reset,
-	output logic R_eq_A, R_gt_A, mid_eq_0,
-	input logic init, set_max, set_min, // control signals
+	input logic init, update_mid, load_R, set_max, set_min, // controller signals
 	input logic [7:0] R,
 	input logic [7:0] A,
-
 	output logic [4:0] loc,
-	output logic done, found
+	output logic R_eq_A, R_gt_A, min_gt_max // status signals
 );
-
-	logic [4:0] min, max, mid;
-	logic [7:0] R_reg;
-
-	// combinational midpoint
-	assign mid = (min + max) >> 1;
-
-	// comparison signals
+	logic signed [6:0] min, max;
+	logic signed [6:0] mid_calc;
+	logic [4:0] mid;
+	logic [4:0] addr_reg;
+	logic [7:0] A_reg;
+	
+	// combinational mid
+	assign mid_calc = (min + max) >>> 1;
+	assign mid = mid_calc[4:0];
+	
+	// RAM address output
+	assign loc = addr_reg;
+	
+	// compare
+	assign R_eq_A = (R == A_reg);
+	assign R_gt_A = (R > A_reg);
+	
+	// search end condition
+	assign min_gt_max = (min > max);
+	
+	// state update
 	always_ff @(posedge clk) begin
-		R_reg <= R;
-	end
-
-	assign R_eq_A = (R_reg == A);
-	assign R_gt_A = (R_reg > A);
-
-	assign mid_eq_0 = (min > max);
-
-	// Datapath logic (RTL operations)
-	always_ff @(posedge clk) begin
-		if (reset) begin 
-			min   <= 0;
-			max   <= 31;
-			loc   <= 0;
-			found <= 0;
-			done  <= 0;
-		end 
-		else begin 
-
-			if (init) begin
-				min   <= 0;
-				max   <= 31;
-				found <= 0;
-				done  <= 0;
-			end
-
+		if (reset) begin
+			min <= 0;
+			max <= 31;
+			addr_reg <= 0;
+			A_reg <= 0;
+		end
+		else if (init) begin
+			min <= 0;
+			max <= 31;
+			addr_reg <= 0;
+			A_reg <= A;
+		end
+		else begin
+			if (update_mid)
+				addr_reg <= mid;
 			if (set_max)
-				max <= mid - 1;
-
+				max <= $signed({2'b00, mid}) - 7'sd1;
 			if (set_min)
-				min <= mid + 1;
-
-			loc <= mid;
-
-			if (R_eq_A) begin 
-				found <= 1;
-				done  <= 1;
-			end
-
-			if (mid_eq_0)
-				done <= 1;
-
+				min <= $signed({2'b00, mid}) + 7'sd1;
 		end
 	end
-
-endmodule // end datapath module
+endmodule// end module datapath
