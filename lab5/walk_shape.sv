@@ -1,27 +1,12 @@
-/* This module selects the endpoints for each line of the walking figure.
- *
- * Inputs:
- *   line_num  - selects which line of the object to draw
- *   frame_num - selects walking pose 0 or pose 1
- *   base_x    - x offset of the object
- *   base_y    - y offset of the object
- *
- * Outputs:
- *   x0, y0 - first endpoint of the selected line
- *   x1, y1 - second endpoint of the selected line
- *
- */
+// This module selects the endpoints for each line of the walking figure
+
 module walk_shape(line_num, frame_num, base_x, base_y, x0, y0, x1, y1);
 
 	input logic [4:0] line_num;
 	input logic frame_num;
 	input logic [10:0] base_x, base_y;
 	output logic [10:0] x0, y0, x1, y1;
-	
-	/* The object is a two-frame walking stick figure.
-	 * The head and body stay the same.
-	 * Arms and legs change based on frame_num.
-	 */
+
 	always_comb begin
 		case (line_num)
 		
@@ -155,7 +140,7 @@ module walk_shape(line_num, frame_num, base_x, base_y, x0, y0, x1, y1);
 				x1 = 11'd0;
 				y1 = 11'd0;
 			end
-		endcase
-	end
+		endcase // end case (line_num)
+	end // end always_comb
 	
-endmodule
+endmodule // END WALK_SHAPE

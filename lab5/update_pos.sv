@@ -1,4 +1,5 @@
 // This module is used to update the position
+
 module update_pos(clk, reset, update_en, base_x, base_y, frame_num);
 
 	input logic clk, reset, update_en;
@@ -41,7 +42,7 @@ module update_pos(clk, reset, update_en, base_x, base_y, frame_num);
 				end else begin
 					base_x <= base_x - X_SPEED;
 				end
-			end
+			end // end if (move_right) begin
 			
 			// slow downward motion
 			if (base_y >= BOTTOM_LIMIT) begin
@@ -49,7 +50,7 @@ module update_pos(clk, reset, update_en, base_x, base_y, frame_num);
 			end else begin
 				base_y <= base_y + Y_SPEED;
 			end
-		end
-	end
+		end // end if
+	end // end always_ff
 	
 endmodule // END MODULE update_pos
