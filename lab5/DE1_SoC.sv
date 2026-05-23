@@ -61,6 +61,7 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW, CLOCK_50,
 	// VGA write controls
 	logic pixel_color;
 	logic pixel_write;
+	logic invert_mode;
 	
 	// line_drawer control/status
 	logic line_reset;
@@ -93,16 +94,16 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW, CLOCK_50,
 	// Choose what the framebuffer receives
 	always_comb begin
 		if (ps == S_CLEAR) begin
-			// Clear screen by writing black to each pixel
+			// Clear screen by writing the background color to each pixel
 			fb_x = clear_x;
 			fb_y = clear_y;
-			pixel_color = 1'b0;
+			pixel_color = invert_mode ? 1'b1 : 1'b0;
 			pixel_write = 1'b1;
 		end else begin
-			// Draw the current line using line_drawer output
+			// Draw the current line using the opposite color
 			fb_x = x;
 			fb_y = y;
-			pixel_color = 1'b1;
+			pixel_color = invert_mode ? 1'b0 : 1'b1;
 			pixel_write = (ps == S_DRAW_LINE) && (delay == 3'd3) && !line_done;
 		end
 	end
@@ -169,13 +170,14 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW, CLOCK_50,
 			line_num <= 5'd0;
 			wait_count <= 23'd0;
 			delay <= 3'd0;
+			invert_mode <= 1'b0;
 		end else begin
 			case (ps)
 			
-				// Clear the screen by writing black to every pixel
+				// Clear the screen by writing background color to every pixel
 				S_CLEAR: begin
-					if (clear_x == 11'd319) begin
-						if (clear_y == 11'd239) begin
+					if (clear_x == 11'd639) begin
+						if (clear_y == 11'd479) begin
 							clear_x <= 11'd0;
 							clear_y <= 11'd0;
 							line_num <= 5'd0;
@@ -227,6 +229,7 @@ module DE1_SoC (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW, CLOCK_50,
 				
 				// Update position/frame, then clear and redraw the next frame
 				S_UPDATE_POS: begin
+					invert_mode <= ~invert_mode;
 					clear_x <= 11'd0;
 					clear_y <= 11'd0;
 					line_num <= 5'd0;
