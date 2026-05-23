@@ -32,83 +32,83 @@ module big_human_shape(
 
         // Draw the start
             // star edge 0: top to lower-right
-            5'd12: begin // <---
-                x0 = SX + 11'd60; // <---
-                y0 = SY + 11'd0;  // <---
-                x1 = SX + 11'd95; // <---
-                y1 = SY + 11'd105; // <---
+            5'd12: begin
+                x0 = SX + 11'd60;
+                y0 = SY + 11'd0;
+                x1 = SX + 11'd95;
+                y1 = SY + 11'd105;
             end
 
             // star edge 1: lower-right to left-middle
-            5'd13: begin // <---
-                x0 = SX + 11'd95; // <---
-                y0 = SY + 11'd105; // <---
-                x1 = SX + 11'd5;  // <---
-                y1 = SY + 11'd40; // <---
+            5'd13: begin
+                x0 = SX + 11'd95;
+                y0 = SY + 11'd105;
+                x1 = SX + 11'd5;
+                y1 = SY + 11'd40;
             end
 
             // star edge 2: left-middle to right-middle
-            5'd14: begin // <---
-                x0 = SX + 11'd5;   // <---
-                y0 = SY + 11'd40;  // <---
-                x1 = SX + 11'd115; // <---
-                y1 = SY + 11'd40;  // <---
+            5'd14: begin
+                x0 = SX + 11'd5;
+                y0 = SY + 11'd40;
+                x1 = SX + 11'd115;
+                y1 = SY + 11'd40;
             end
 
             // star edge 3: right-middle to lower-left
-            5'd15: begin // <---
-                x0 = SX + 11'd115; // <---
-                y0 = SY + 11'd40;  // <---
-                x1 = SX + 11'd25;  // <---
-                y1 = SY + 11'd105; // <---
+            5'd15: begin
+                x0 = SX + 11'd115;
+                y0 = SY + 11'd40;
+                x1 = SX + 11'd25;
+                y1 = SY + 11'd105;
             end
 
             // star edge 4: lower-left to top
-            5'd16: begin // <---
-                x0 = SX + 11'd25; // <---
-                y0 = SY + 11'd105; // <---
-                x1 = SX + 11'd60; // <---
-                y1 = SY + 11'd0;  // <---
+            5'd16: begin
+                x0 = SX + 11'd25;
+                y0 = SY + 11'd105;
+                x1 = SX + 11'd60;
+                y1 = SY + 11'd0;
             end
 
             // vertical center line
-            5'd17: begin // <---
-                x0 = SX + 11'd60; // <---
-                y0 = SY + 11'd0;  // <---
-                x1 = SX + 11'd60; // <---
-                y1 = SY + 11'd120; // <---
+            5'd17: begin
+                x0 = SX + 11'd60;
+                y0 = SY + 11'd0;
+                x1 = SX + 11'd60;
+                y1 = SY + 11'd120;
             end
 
             // horizontal base line, drawn right-to-left
-            5'd18: begin // <---
-                x0 = SX + 11'd120; // <---
-                y0 = SY + 11'd120; // <---
-                x1 = SX + 11'd0;   // <---
-                y1 = SY + 11'd120; // <---
+            5'd18: begin
+                x0 = SX + 11'd120;
+                y0 = SY + 11'd120;
+                x1 = SX + 11'd0;
+                y1 = SY + 11'd120;
             end
 
             // shallow positive slope
-            5'd19: begin // <---
-                x0 = SX + 11'd0;   // <---
-                y0 = SY + 11'd130; // <---
-                x1 = SX + 11'd120; // <---
-                y1 = SY + 11'd155; // <---
+            5'd19: begin
+                x0 = SX + 11'd0;
+                y0 = SY + 11'd130;
+                x1 = SX + 11'd120;
+                y1 = SY + 11'd155;
             end
 
             // shallow negative slope
-            5'd20: begin // <---
-                x0 = SX + 11'd120; // <---
-                y0 = SY + 11'd155; // <---
-                x1 = SX + 11'd0;   // <---
-                y1 = SY + 11'd130; // <---
+            5'd20: begin
+                x0 = SX + 11'd120;
+                y0 = SY + 11'd155;
+                x1 = SX + 11'd0;
+                y1 = SY + 11'd130;
             end
 
             // extra diagonal line
-            5'd21: begin // <---
-                x0 = SX + 11'd0;   // <---
-                y0 = SY + 11'd155; // <---
-                x1 = SX + 11'd120; // <---
-                y1 = SY + 11'd130; // <---
+            5'd21: begin
+                x0 = SX + 11'd0;
+                y0 = SY + 11'd155;
+                x1 = SX + 11'd120;
+                y1 = SY + 11'd130;
             end
 
             default: begin
