@@ -1,5 +1,5 @@
-// Name: 
-// SID:  
+// Name: Jiaze Gao, Cici Zhang
+// SID:  Jiaze Gao (2582480) Cici Zhang(2467303)
 // EE/CSE371 Sp23 Homework 6
 
 
