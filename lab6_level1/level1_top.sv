@@ -33,7 +33,7 @@ module level1_top #(
 
     output logic [10:0] fb_x,
     output logic [10:0] fb_y,
-    output logic        fb_pixel_color,
+    output logic [2:0]  fb_pixel_color,
     output logic        fb_pixel_write,
 
     output logic [9:0]  player_x,
@@ -52,8 +52,6 @@ module level1_top #(
 
     // ------------------------------------------------------------
     // Line ranges
-    // ------------------------------------------------------------
-
     localparam logic [5:0] CANNON_START = 6'd0;
     localparam logic [5:0] CANNON_END   = 6'd7;
 
@@ -65,12 +63,10 @@ module level1_top #(
 
     localparam logic [5:0] LAST_LINE    = 6'd24;
 
-    localparam logic [8:0] BULLET_START_Y_9 = BULLET_START_Y;
+    localparam logic [8:0] BULLET_START_Y_9 = 9'd315;
 
     // ------------------------------------------------------------
     // Game control
-    // ------------------------------------------------------------
-
     logic update_en;
     logic game_active;
     logic bullet_enable;
@@ -86,8 +82,6 @@ module level1_top #(
 
     // ------------------------------------------------------------
     // Player update
-    // ------------------------------------------------------------
-
     player_update_pos #(
         .SCREEN_W       (SCREEN_W),
         .SCREEN_H       (SCREEN_H),
@@ -133,8 +127,6 @@ module level1_top #(
 
     // ------------------------------------------------------------
     // Bullet update
-    // ------------------------------------------------------------
-
     bullet_update_pos #(
         .SCREEN_W     (SCREEN_W),
         .BULLET_W     (BULLET_W),
@@ -157,8 +149,6 @@ module level1_top #(
 
     // ------------------------------------------------------------
     // Collision
-    // ------------------------------------------------------------
-
     level1_collision #(
         .PLAYER_W     (PLAYER_W),
         .PLAYER_H     (PLAYER_H),
@@ -181,8 +171,6 @@ module level1_top #(
 
     // ------------------------------------------------------------
     // Wall controller
-    // ------------------------------------------------------------
-
     wall_controller #(
         .START_LAYERS (3)
     ) wall_ctrl_inst (
@@ -207,8 +195,6 @@ module level1_top #(
 
     // ------------------------------------------------------------
     // Shape line endpoints
-    // ------------------------------------------------------------
-
     logic [5:0] line_num;
 
     logic [10:0] level_x0;
@@ -299,8 +285,6 @@ module level1_top #(
 
     // ------------------------------------------------------------
     // Line drawer
-    // ------------------------------------------------------------
-
     logic line_reset;
     logic line_done;
     logic [10:0] line_x;
@@ -320,14 +304,12 @@ module level1_top #(
 
     // ------------------------------------------------------------
     // Lilcat MIF drawer
-    // ------------------------------------------------------------
-
     logic        lilcat_start;
     logic        lilcat_done;
     logic        lilcat_pixel_write;
     logic [10:0] lilcat_write_x;
     logic [10:0] lilcat_write_y;
-    logic        lilcat_pixel_color;
+    logic [2:0]  lilcat_pixel_color;
 
     lilcat_shape #(
         .SPRITE_W  (88),
@@ -349,8 +331,6 @@ module level1_top #(
 
     // ------------------------------------------------------------
     // Draw FSM
-    // ------------------------------------------------------------
-
     localparam logic [2:0] S_CLEAR        = 3'd0;
     localparam logic [2:0] S_LINE_RESET   = 3'd1;
     localparam logic [2:0] S_DRAW_LINE    = 3'd2;
@@ -445,12 +425,10 @@ module level1_top #(
 
     // ------------------------------------------------------------
     // Framebuffer mux
-    // ------------------------------------------------------------
-
     always_comb begin
         fb_x = 11'd0;
         fb_y = 11'd0;
-        fb_pixel_color = 1'b0;
+        fb_pixel_color = 3'b000;
         fb_pixel_write = 1'b0;
 
         line_reset = 1'b0;
@@ -462,7 +440,7 @@ module level1_top #(
             S_CLEAR: begin
                 fb_x = clear_x;
                 fb_y = {2'b00, clear_y};
-                fb_pixel_color = 1'b0;
+                fb_pixel_color = 3'b000;
                 fb_pixel_write = 1'b1;
                 line_reset = 1'b1;
             end  // S_CLEAR
@@ -474,7 +452,7 @@ module level1_top #(
             S_DRAW_LINE: begin
                 fb_x = line_x;
                 fb_y = line_y;
-                fb_pixel_color = 1'b1;
+                fb_pixel_color = 3'b111;
                 fb_pixel_write = level_line_valid;
             end  // S_DRAW_LINE
 
